@@ -17,10 +17,14 @@ set(PROJECT_SOURCES
         widget.h
         waylandselectionlistener.h
         waylandselectionlistener.cpp
-        wayland-wlr-data-control-unstable-v1-protocol.c
-        wayland-wlr-data-control-unstable-v1-client-protocol.h
-        qwayland-wlr-data-control-unstable-v1.cpp
-        qwayland-wlr-data-control-unstable-v1.h
+        # wayland-wlr-data-control-unstable-v1-protocol.c
+        # wayland-wlr-data-control-unstable-v1-client-protocol.h
+        # qwayland-wlr-data-control-unstable-v1.cpp
+        # qwayland-wlr-data-control-unstable-v1.h
+        qwayland-primary-selection-unstable-v1.cpp
+        qwayland-primary-selection-unstable-v1.h
+        wayland-primary-selection-unstable-v1-client-protocol.h
+        wayland-primary-selection-unstable-v1-protocol.c
 )
 
 qt_add_executable(WayTrans
@@ -29,7 +33,7 @@ qt_add_executable(WayTrans
 )
 
 # qt_generate_wayland_protocol_client_sources(WayTrans
-#     FILES ${CMAKE_CURRENT_LIST_DIR}/wlr-data-control-unstable-v1.xml
+#     FILES ${CMAKE_CURRENT_LIST_DIR}/primary-selection-unstable-v1.xml
 # )
 
 
