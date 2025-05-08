@@ -17,7 +17,9 @@ Widget::Widget(QWidget *parent)
     m_translatedTextEdit->setReadOnly(true);
 
     m_translateButton = new QPushButton("翻译", this);
-
+    connect(m_translateButton,&QPushButton::clicked,[](){
+        qDebug()<<"click";
+    });
     layout->addWidget(new QLabel("选中的文本:", this));
     layout->addWidget(m_sourceTextEdit);
     layout->addWidget(new QLabel("翻译结果:", this));
@@ -33,4 +35,9 @@ Widget::~Widget() {}
 void Widget::setSelectedText(const QString &text)
 {
     m_sourceTextEdit->setPlainText(text);
+}
+
+void Widget::setCnt()
+{
+    m_sourceTextEdit->setPlainText(QString::number(cnt++));
 }

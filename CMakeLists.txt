@@ -30,6 +30,7 @@ set(PROJECT_SOURCES
 qt_add_executable(WayTrans
     MANUAL_FINALIZATION
     ${PROJECT_SOURCES}
+
 )
 
 # qt_generate_wayland_protocol_client_sources(WayTrans
@@ -47,13 +48,4 @@ target_link_libraries(WayTrans PRIVATE
   Qt6::Core
   Qt6::WaylandClient)
 
-include(GNUInstallDirs)
-install(TARGETS WayTrans
-    BUNDLE DESTINATION .
-    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-)
 
-if(QT_VERSION_MAJOR EQUAL 6)
-    qt_finalize_executable(WayTrans)
-endif()

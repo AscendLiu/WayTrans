@@ -1,18 +1,21 @@
 #include "waylandselectionlistener.h"
-#include <QSocketNotifier>
-#include <QFile>
+#include <unistd.h>
+#include <fcntl.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <QDebug>
 
 const struct wl_registry_listener WaylandSelectionListener::s_registryListener = {
     [](void *data, wl_registry *registry, uint32_t name,
-        const char *interface, uint32_t version) {
+       const char *interface, uint32_t version) {
         auto self = static_cast<WaylandSelectionListener*>(data);
 
         if (strcmp(interface, "wl_seat") == 0) {
             self->m_seat = static_cast<wl_seat*>(
                 wl_registry_bind(registry, name, &wl_seat_interface, 1));
         }
-        else if (strcmp(interface, "zwlr_data_control_manager_v1") == 0) {
-            self->m_manager = new QtWayland::zwlr_data_control_manager_v1(
+        else if (strcmp(interface, "zwp_primary_selection_device_manager_v1") == 0) {
+            self->m_manager = new QtWayland::zwp_primary_selection_device_manager_v1(
                 registry, name, version);
         }
     },
@@ -23,13 +26,12 @@ const struct wl_registry_listener WaylandSelectionListener::s_registryListener =
     }
 };
 
-WaylandSelectionListener::WaylandSelectionListener(QObject *parent)
-    : QObject(parent){}
-
 WaylandSelectionListener::~WaylandSelectionListener()
 {
-    delete m_notifier;
-    m_notifier = nullptr;
+    if(m_notifier){
+        delete m_notifier;
+        m_notifier = nullptr;
+    }
 
     if (m_device) {
         delete m_device;
@@ -55,7 +57,6 @@ WaylandSelectionListener::~WaylandSelectionListener()
         wl_display_disconnect(m_display);
         m_display = nullptr;
     }
-
 }
 
 bool WaylandSelectionListener::initialize()
@@ -76,7 +77,7 @@ bool WaylandSelectionListener::initialize()
     }
 
     // 设置数据设备监听
-    m_device = new DataControlDevice(this,m_manager->get_data_device(m_seat));
+    m_device = new SelectDevice(m_manager->get_device(m_seat));
 
     // 设置事件监听
     int fd = wl_display_get_fd(m_display);
@@ -88,8 +89,9 @@ bool WaylandSelectionListener::initialize()
     return true;
 }
 
-void WaylandSelectionListener::handleWaylandEvent()
+void WaylandSelectionListener::handleWaylandEvent(int socket)
 {
+    emit eventChanged();
     qWarning()<<__FUNCTION__;
     // 1. 处理所有待处理的Wayland事件
     wl_display_dispatch_pending(m_display);
@@ -112,8 +114,6 @@ void WaylandSelectionListener::handleWaylandEvent()
     // 4. 确保所有请求已发送
     wl_display_flush(m_display);
 }
-
-
 
 
 
