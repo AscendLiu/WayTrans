@@ -5,6 +5,7 @@
 #include <QString>
 #include <QSocketNotifier>
 #include "qwayland-primary-selection-unstable-v1.h"
+#include <unistd.h>
 #include <wayland-client.h>
 #include <wayland-client-protocol.h>
 #include <QFile>
@@ -28,10 +29,10 @@ public:
         }
     protected:
         void zwp_primary_selection_device_v1_data_offer(struct ::zwp_primary_selection_offer_v1 *offer) override{
-            qWarning()<<__FUNCTION__;
+            qWarning()<<"YYDS:"<<__FUNCTION__;
         }
         void zwp_primary_selection_device_v1_selection(struct ::zwp_primary_selection_offer_v1 *id) override{
-            qWarning()<<__FUNCTION__;
+            qWarning()<<"YYDS:"<<__FUNCTION__;
         }
     };
 
@@ -41,8 +42,28 @@ public:
             QtWayland::zwp_primary_selection_offer_v1(object){
 
         }
+
+        QString receiveData(const QString &mimeType) {
+            int fds[2];
+            if (pipe(fds) == -1) return QString();
+
+            receive(mimeType, fds[1]);
+            close(fds[1]);
+
+            QFile readPipe;
+            if (!readPipe.open(fds[0], QIODevice::ReadOnly)) {
+                close(fds[0]);
+                return QString();
+            }
+
+            QString data = QString::fromUtf8(readPipe.readAll());
+            readPipe.close();
+            return data;
+        }
+
     protected:
         void zwp_primary_selection_offer_v1_offer(const QString &mime_type) override{
+            qWarning()<<"YYDS:"<<__FUNCTION__;
             m_offeredMimeTypes.append(mime_type);
         }
     private:
@@ -57,10 +78,10 @@ public:
         }
     protected:
         virtual void zwp_primary_selection_source_v1_send(const QString &mime_type, int32_t fd) override{
-            qWarning()<<__FUNCTION__;
+            qWarning()<<"YYDS:"<<__FUNCTION__;
         }
         virtual void zwp_primary_selection_source_v1_cancelled() override{
-            qWarning()<<__FUNCTION__;
+            qWarning()<<"YYDS:"<<__FUNCTION__;
         }
 
     };

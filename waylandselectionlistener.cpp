@@ -4,6 +4,7 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <QDebug>
+#include <QTimer>
 
 const struct wl_registry_listener WaylandSelectionListener::s_registryListener = {
     [](void *data, wl_registry *registry, uint32_t name,
@@ -82,17 +83,22 @@ bool WaylandSelectionListener::initialize()
     // 设置事件监听
     int fd = wl_display_get_fd(m_display);
     m_notifier = new QSocketNotifier(fd, QSocketNotifier::Read, this);
-    connect(m_notifier, &QSocketNotifier::activated,  this, &WaylandSelectionListener::handleWaylandEvent);
+    if(!m_notifier->isValid())return false;
+    // connect(m_notifier, &QSocketNotifier::activated,  this, &WaylandSelectionListener::handleWaylandEvent);
+    connect(m_notifier, &QSocketNotifier::activated,[=](int socket){
+        emit selectionChanged("OK");
+    });
     wl_display_flush(m_display);  // 确保发送所有待处理请求
     wl_display_roundtrip(m_display);  // 阻塞直到收到所有响应, 完成跟服务器的同步
-
+    QTimer::singleShot(1000,[=](){
+        emit selectionChanged("OK1");
+    });
     return true;
 }
 
 void WaylandSelectionListener::handleWaylandEvent(int socket)
 {
-    emit eventChanged();
-    qWarning()<<__FUNCTION__;
+    qWarning()<<"YYDS:"<<__FUNCTION__;
     // 1. 处理所有待处理的Wayland事件
     wl_display_dispatch_pending(m_display);
 

@@ -21,10 +21,10 @@ set(PROJECT_SOURCES
         # wayland-wlr-data-control-unstable-v1-client-protocol.h
         # qwayland-wlr-data-control-unstable-v1.cpp
         # qwayland-wlr-data-control-unstable-v1.h
-        qwayland-primary-selection-unstable-v1.cpp
-        qwayland-primary-selection-unstable-v1.h
-        wayland-primary-selection-unstable-v1-client-protocol.h
-        wayland-primary-selection-unstable-v1-protocol.c
+        # qwayland-primary-selection-unstable-v1.cpp
+        # qwayland-primary-selection-unstable-v1.h
+        # wayland-primary-selection-unstable-v1-client-protocol.h
+        # wayland-primary-selection-unstable-v1-protocol.c
 )
 
 qt_add_executable(WayTrans
@@ -33,15 +33,16 @@ qt_add_executable(WayTrans
 
 )
 
-# qt_generate_wayland_protocol_client_sources(WayTrans
-#     FILES ${CMAKE_CURRENT_LIST_DIR}/primary-selection-unstable-v1.xml
-# )
+qt_generate_wayland_protocol_client_sources(WayTrans
+    FILES /usr/share/wayland-protocols/unstable/primary-selection/primary-selection-unstable-v1.xml
+    # wlr-data-control-unstable-v1.xml
+)
 
 
-# target_include_directories(WayTrans
-#     PUBLIC
-#         ${CMAKE_CURRENT_BINARY_DIR}
-# )
+target_include_directories(WayTrans
+    PUBLIC
+        ${CMAKE_CURRENT_BINARY_DIR}
+)
 
 target_link_libraries(WayTrans PRIVATE
   Qt6::Widgets
